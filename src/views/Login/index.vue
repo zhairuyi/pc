@@ -2,14 +2,16 @@
   <div class="container">
     <el-card class="box-card">
       <img src="../../assets/logo_index.png" alt />
-      <el-form :model="form">
-        <el-form-item>
-          <el-input v-model="form.phone" placeholder="请输入手机号"></el-input>
+      <el-form :model="loginForm" :rules="loginRules">
+        <el-form-item prop="phone">
+          <el-input v-model="loginForm.phone" placeholder="请输入手机号"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-input v-model="form.num" placeholder="请输入验证码" style="width:230px;margin-right:8px"></el-input>
-          <!-- </el-form-item>
-          <el-form-item>-->
+        <el-form-item prop="num">
+          <el-input
+            v-model="loginForm.num"
+            placeholder="请输入验证码"
+            style="width:230px;margin-right:8px"
+          ></el-input>
           <el-button>发送验证码</el-button>
         </el-form-item>
         <el-form-item>
@@ -27,9 +29,16 @@
 export default {
   data () {
     return {
-      form: {
+      loginForm: {
         phone: '',
         num: ''
+      },
+      loginRules: {
+        phone: [{ required: true, message: '请输入手机号', trigger: 'blur' }],
+        num: [
+          { required: true, message: '请输入验证码', trigger: 'blur' },
+          { len: 6, message: '验证码是6位', trigger: 'blur' }
+        ]
       }
     }
   }
