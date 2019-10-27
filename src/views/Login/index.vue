@@ -2,13 +2,13 @@
   <div class="container">
     <el-card class="box-card">
       <img src="../../assets/logo_index.png" alt />
-      <el-form :model="loginForm" :rules="loginRules">
-        <el-form-item prop="phone">
-          <el-input v-model="loginForm.phone" placeholder="请输入手机号"></el-input>
+      <el-form :model="loginForm" :rules="loginRules" status-icon ref="ruleForm">
+        <el-form-item prop="mobile">
+          <el-input v-model="loginForm.mobile" placeholder="请输入手机号"></el-input>
         </el-form-item>
-        <el-form-item prop="num">
+        <el-form-item prop="code">
           <el-input
-            v-model="loginForm.num"
+            v-model="loginForm.code"
             placeholder="请输入验证码"
             style="width:230px;margin-right:8px"
           ></el-input>
@@ -18,7 +18,7 @@
           <el-checkbox :value="true">您已阅读并同意本协议</el-checkbox>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" style="width:100%">登录</el-button>
+          <el-button type="primary" style="width:100%" @click="submitForm('ruleForm')">登录</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -28,18 +28,44 @@
 <script>
 export default {
   data () {
+    const checkMobile = (rule, value, callback) => {
+      if (/^1[3-9]\d{9}$/.test(value)) {
+        callback()
+      } else {
+        callback(new Error('手机号格式不对'))
+      }
+    }
     return {
       loginForm: {
-        phone: '',
-        num: ''
+        mobile: '',
+        code: ''
       },
       loginRules: {
-        phone: [{ required: true, message: '请输入手机号', trigger: 'blur' }],
-        num: [
+        mobile: [
+          { required: true, message: '请输入手机号', trigger: 'blur' },
+          { validator: checkMobile, trigger: 'blur' }
+        ],
+        code: [
           { required: true, message: '请输入验证码', trigger: 'blur' },
           { len: 6, message: '验证码是6位', trigger: 'blur' }
         ]
       }
+    }
+  },
+  methods: {
+    submitForm (formName) {
+      this.$refs[formName].validate(valid => {
+        if (valid) {
+          this.$http
+            .post('authorizations', this.loginForm)
+            .then(res => {
+              this.$router.push('/')
+            })
+            .catch(() => {
+              this.$message.error('手机号或验证码错误')
+            })
+        }
+      })
     }
   }
 }
