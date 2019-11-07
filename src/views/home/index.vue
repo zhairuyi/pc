@@ -3,7 +3,7 @@
     <el-aside :width="isopen?'200px':'64px'">
       <div class="logo" :class="{smallLogo:!isopen}"></div>
       <el-menu
-        default-active="/"
+        :default-active="$route.path"
         class="el-menu-vertical-demo"
         background-color="#002033"
         text-color="#fff"
@@ -46,15 +46,16 @@
       <el-header>
         <span class="el-icon-s-fold icon" @click="toggleMenu"></span>
         <span class="text">江苏传智播客科技教育有限公司</span>
-        <el-dropdown class="dropdown">
+        <!-- @command="handleClick"要写下最外层 -->
+        <el-dropdown class="dropdown" @command="handleClick">
           <span class="el-dropdown-link">
-            <img class="headIcon" src="./../../assets/huahua.jpg" alt />
-            <span class="userName">用户名</span>
+            <img class="headIcon" :src="photo" alt />
+            <span class="userName">{{name}}</span>
             <i class="el-icon-arrow-down el-icon--right"></i>
           </span>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item icon="el-icon-setting">个人设置</el-dropdown-item>
-            <el-dropdown-item icon="el-icon-unlock">退出登录</el-dropdown-item>
+            <el-dropdown-item icon="el-icon-setting" command="setting">个人设置</el-dropdown-item>
+            <el-dropdown-item icon="el-icon-unlock" command="logout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
         </el-dropdown>
       </el-header>
@@ -66,16 +67,43 @@
 </template>
 
 <script>
+import local from '@/utils/local'
+import eventBus from '@/eventBus'
 export default {
   data () {
     return {
-      isopen: 'ture'
+      isopen: 'ture',
+      photo: '',
+      name: ''
     }
   },
   methods: {
     toggleMenu () {
       this.isopen = !this.isopen
+    },
+    setting () {
+      this.$router.push('/setting')
+    },
+    logout () {
+      local.delUser()
+      this.$router.push('Login')
+    },
+    handleClick (command) {
+      this[command]()
     }
+  },
+  created () {
+    const user = local.getUser() || {}
+    this.photo = user.photo
+    this.name = user.name
+    // 绑定事件 updateName
+    eventBus.$on('updateName', (name) => {
+      this.name = name
+    })
+    // 绑定事件 updatePhoto
+    eventBus.$on('updatePhoto', (photo) => {
+      this.photo = photo
+    })
   }
 }
 </script>
